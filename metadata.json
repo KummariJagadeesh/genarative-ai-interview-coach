@@ -1,0 +1,11 @@
+{
+  "name": "AI Mock Interview Coach",
+  "description": "Intelligent capstone AI Mock Interview Coach featuring resume PDF analysis, job role matching, interactive practice tests with instant scoring reports, and real-time live video mock interviews analyzing speech grammar, filler words, posture, and answer correctness.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
