@@ -1,1 +1,17 @@
 @import "tailwindcss";
+
+/* Disable text selection and dragging across the application to enforce no-copy policy */
+body, html {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text input editing and typing inside inputs while keeping paste blocked via JavaScript */
+input, textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}

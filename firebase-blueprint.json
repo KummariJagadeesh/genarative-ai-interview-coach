@@ -1,0 +1,53 @@
+{
+  "entities": {
+    "UserProfile": {
+      "collection": "users",
+      "fields": {
+        "id": { "type": "string", "description": "User UID from Firebase Auth" },
+        "name": { "type": "string", "description": "User display name" },
+        "email": { "type": "string", "description": "User Google/Gmail address" },
+        "photoURL": { "type": "string", "description": "Google profile photo URL" },
+        "collegeOrCompany": { "type": "string", "description": "College, department, or company" },
+        "experienceLevel": { "type": "string", "description": "Career experience stage" },
+        "roleTitle": { "type": "string", "description": "Target job role" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "UserResume": {
+      "collection": "users/{userId}/resumes",
+      "fields": {
+        "candidateName": { "type": "string", "description": "Candidate name extracted from resume" },
+        "email": { "type": "string", "description": "Candidate email from resume" },
+        "summary": { "type": "string", "description": "Candidate summary" },
+        "technicalSkills": { "type": "array", "description": "List of technical skills" },
+        "recommendedJobRoles": { "type": "array", "description": "Recommended job roles and match scores" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "InterviewReport": {
+      "collection": "users/{userId}/interview_reports",
+      "fields": {
+        "id": { "type": "string", "description": "Report unique identifier" },
+        "candidateName": { "type": "string", "description": "Candidate name" },
+        "targetRole": { "type": "string", "description": "Target job title" },
+        "overallScore": { "type": "number", "description": "Overall score 0-100" },
+        "hiringDecision": { "type": "string", "description": "Hiring decision recommendation" },
+        "completedAt": { "type": "string", "description": "Completion date and time" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    },
+    "PracticeReport": {
+      "collection": "users/{userId}/practice_reports",
+      "fields": {
+        "id": { "type": "string", "description": "Practice report unique identifier" },
+        "candidateName": { "type": "string", "description": "Candidate name" },
+        "targetRole": { "type": "string", "description": "Target job title" },
+        "totalScore": { "type": "number", "description": "Total score percentage" },
+        "accuracyRate": { "type": "number", "description": "Accuracy percentage" },
+        "completedAt": { "type": "string", "description": "Completion date and time" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      }
+    }
+  }
+}

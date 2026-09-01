@@ -114,6 +114,48 @@ CERTIFICATIONS
         'Deepen understanding of distributed systems and microservices fault tolerance (Circuit Breakers)',
         'Expand hands-on experience with Kubernetes and infrastructure-as-code (Terraform)'
       ],
+      resumeSuggestions: [
+        {
+          id: 'sug-fs-1',
+          category: 'Impact & Quantifiable Metrics',
+          priority: 'High Priority',
+          title: 'Quantify Backend Microservice Scaling & Latency Gains',
+          description: 'Your bullet regarding Node.js and PostgreSQL microservices is impressive. Highlighting exact throughput before and after optimization will significantly elevate your profile for Senior and Mid-Level reviewers.',
+          actionItem: 'Update the TechNova internship bullet to explicitly state latency drop (e.g. from 340ms to 110ms) and database query cost reduction.',
+          exampleBeforeAfter: {
+            before: 'Architected REST API microservices in Node.js and PostgreSQL handling 50k+ daily queries.',
+            after: 'Architected REST API microservices in Node.js and PostgreSQL handling 50k+ daily queries, reducing P99 latency by 68% (340ms → 110ms).'
+          }
+        },
+        {
+          id: 'sug-fs-2',
+          category: 'ATS & Keyword Optimization',
+          priority: 'High Priority',
+          title: 'Incorporate Cloud & Container Orchestration Keywords',
+          description: 'Applicant Tracking Systems for Full Stack roles heavily scan for Docker, AWS ECS/EKS, and CI/CD pipelines. Ensure these terms are in your primary skills matrix and project headings.',
+          actionItem: 'Add Docker and AWS EC2 directly to your CloudCollaborate project title tag and emphasize automated GitHub Actions workflows.',
+          exampleBeforeAfter: {
+            before: 'Containerized using Docker and deployed on AWS EC2.',
+            after: 'Built multi-stage Docker containerization with automated GitHub Actions CI/CD pipelines deployed to AWS EC2 instances.'
+          }
+        },
+        {
+          id: 'sug-fs-3',
+          category: 'Project Presentation',
+          priority: 'Recommended',
+          title: 'Showcase Operational Transformation Complexity',
+          description: 'Your real-time editor project is an exceptional differentiator. Expand on how you handled edge cases like network latency spikes and simultaneous disconnections.',
+          actionItem: 'Include 1 sentence in the interview notes or resume on how operational transformation resolved concurrent conflict states across multiple clients.'
+        },
+        {
+          id: 'sug-fs-4',
+          category: 'Career Strategy',
+          priority: 'Pro Tip',
+          title: 'Pin Live Hosted Demos and GitHub Repository Badges',
+          description: 'Hiring managers spend under 30 seconds reviewing initial profiles. A live demo URL with automated guest login increases interview invitation rates by over 40%.',
+          actionItem: 'Ensure both CloudCollaborate and the E-Commerce projects feature working Vercel/AWS demo links at the top of your resume.'
+        }
+      ],
       recommendedJobRoles: [
         {
           id: 'role-fs-1',
@@ -132,7 +174,7 @@ CERTIFICATIONS
             'REST API security & rate limiting strategies',
             'Real-time WebSocket protocol architecture'
           ],
-          averageSalaryRange: '$95,000 - $135,000',
+          averageSalaryRange: '₹8.5 - 16.0 LPA',
           growthOutlook: 'Very High (+22% YoY)'
         },
         {
@@ -151,7 +193,7 @@ CERTIFICATIONS
             'Core Web Vitals optimization and bundle splitting',
             'State normalization and caching strategies'
           ],
-          averageSalaryRange: '$90,000 - $130,000',
+          averageSalaryRange: '₹7.0 - 13.5 LPA',
           growthOutlook: 'High (+18% YoY)'
         },
         {
@@ -170,7 +212,7 @@ CERTIFICATIONS
             'Authentication (JWT/OAuth) and API gateway patterns',
             'Handling concurrent requests and connection pooling'
           ],
-          averageSalaryRange: '$98,000 - $140,000',
+          averageSalaryRange: '₹8.0 - 15.5 LPA',
           growthOutlook: 'High (+20% YoY)'
         }
       ]
@@ -258,6 +300,40 @@ Machine Learning Intern | DataCore Labs | June 2024 - Dec 2024
         'Further explore low-level model quantization and ONNX runtime optimization',
         'Strengthen distributed model training experience across multi-GPU clusters'
       ],
+      resumeSuggestions: [
+        {
+          id: 'sug-ai-1',
+          category: 'ATS & Keyword Optimization',
+          priority: 'High Priority',
+          title: 'Highlight Vector Databases and Chunking Strategy in RAG Section',
+          description: 'ATS parsers for Generative AI and Machine Learning positions heavily screen for semantic embeddings, hybrid search, and vector DBs (Pinecone, ChromaDB, Weaviate).',
+          actionItem: 'Explicitly specify the embedding model (e.g. text-embedding-3-small) and vector index type used in your Document Intelligence project.',
+          exampleBeforeAfter: {
+            before: 'Semantic search and question answering on PDF collections with chunking and retrieval.',
+            after: 'Engineered hybrid dense-sparse semantic retrieval on 10k+ PDFs using ChromaDB vector store, reducing hallucinations by 42%.'
+          }
+        },
+        {
+          id: 'sug-ai-2',
+          category: 'Impact & Quantifiable Metrics',
+          priority: 'High Priority',
+          title: 'Add Model Inference Benchmarks and Latency Targets',
+          description: 'Production AI hiring teams want to see how models perform under latency and memory constraints.',
+          actionItem: 'Mention API response time (e.g. sub-80ms p95 latency) when serving FastAPI endpoints.',
+          exampleBeforeAfter: {
+            before: 'Developed a customer churn prediction model using XGBoost with an AUC-ROC of 0.91.',
+            after: 'Developed and deployed an XGBoost customer churn model (0.91 AUC-ROC) serving real-time inferences with <45ms p99 latency.'
+          }
+        },
+        {
+          id: 'sug-ai-3',
+          category: 'Career Strategy',
+          priority: 'Recommended',
+          title: 'Link to Hugging Face Model Cards or Kaggle Competitions',
+          description: 'Including public model weights, datasets, or top Kaggle percentile rankings provides tangible proof of your data science capabilities.',
+          actionItem: 'Add your Hugging Face or Kaggle profile badge in the resume header alongside GitHub.'
+        }
+      ],
       recommendedJobRoles: [
         {
           id: 'role-ai-1',
@@ -276,7 +352,7 @@ Machine Learning Intern | DataCore Labs | June 2024 - Dec 2024
             'Model evaluation metrics: Precision, Recall, F1, ROC-AUC, BLEU/ROUGE',
             'Serving ML models with FastAPI & low latency constraints'
           ],
-          averageSalaryRange: '$105,000 - $150,000',
+          averageSalaryRange: '₹10.0 - 22.0 LPA',
           growthOutlook: 'Explosive (+35% YoY)'
         },
         {
@@ -295,7 +371,7 @@ Machine Learning Intern | DataCore Labs | June 2024 - Dec 2024
             'Supervised vs Unsupervised algorithms comparison',
             'Translating raw machine learning outputs into executive business decisions'
           ],
-          averageSalaryRange: '$95,000 - $138,000',
+          averageSalaryRange: '₹8.5 - 18.0 LPA',
           growthOutlook: 'Very High (+24% YoY)'
         }
       ]

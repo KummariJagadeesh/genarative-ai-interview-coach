@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { UserProfile, ResumeAnalysis } from '../types';
 import { PRESET_RESUMES, PresetResume } from '../data/sampleResumes';
-import { fileToBase64, fileToText } from '../lib/pdfHelper';
+import { fileToBase64, fileToText, extractTextFromPdf } from '../lib/pdfHelper';
 
 interface ResumeUploadViewProps {
   user: UserProfile;
@@ -29,6 +29,7 @@ export const ResumeUploadView: React.FC<ResumeUploadViewProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisStep, setAnalysisStep] = useState<string>('');
+  const [analysisProgress, setAnalysisProgress] = useState<number>(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showPasteModal, setShowPasteModal] = useState(false);
   const [manualText, setManualText] = useState('');
@@ -38,26 +39,39 @@ export const ResumeUploadView: React.FC<ResumeUploadViewProps> = ({
   const processResume = async (file?: File, rawText?: string) => {
     setIsAnalyzing(true);
     setErrorMsg(null);
+    setAnalysisProgress(15);
 
     try {
-      setAnalysisStep('Reading & parsing resume document...');
-      await new Promise((r) => setTimeout(r, 600));
-
+      setAnalysisStep('Reading resume and extracting text layers...');
       let base64Data: string | undefined = undefined;
       let extractedText: string | undefined = rawText;
 
       if (file) {
-        if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-          base64Data = await fileToBase64(file);
+        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+          setAnalysisStep('Parsing PDF pages and document structure...');
+          setAnalysisProgress(30);
+          try {
+            const [b64, pdfTxt] = await Promise.all([
+              fileToBase64(file),
+              extractTextFromPdf(file).catch(() => '')
+            ]);
+            base64Data = b64;
+            extractedText = pdfTxt || rawText || '';
+          } catch (pdfErr) {
+            console.warn('PDF parser notice, using base64 direct stream:', pdfErr);
+            base64Data = await fileToBase64(file);
+          }
         } else {
           extractedText = await fileToText(file);
         }
       }
 
-      setAnalysisStep('Gemini AI analyzing technical stack, projects, and work history...');
-      await new Promise((r) => setTimeout(r, 800));
+      setAnalysisStep('AI analyzing candidate identity, education, skills & projects...');
+      setAnalysisProgress(55);
+      await new Promise((r) => setTimeout(r, 400));
 
-      setAnalysisStep('Evaluating career competencies and predicting best-fit job roles...');
+      setAnalysisStep('Generating tailored resume suggestions & career match scores...');
+      setAnalysisProgress(80);
 
       const response = await fetch('/api/analyze-resume', {
         method: 'POST',
@@ -75,25 +89,21 @@ export const ResumeUploadView: React.FC<ResumeUploadViewProps> = ({
 
       const data = await response.json();
       if (data.analysis) {
-        setAnalysisStep('Complete! Loading job role match dashboard...');
+        setAnalysisStep('Analysis complete! Preparing recommendation dashboard...');
+        setAnalysisProgress(100);
         await new Promise((r) => setTimeout(r, 400));
         onAnalysisComplete(data.analysis);
       } else {
-        throw new Error('Analysis response missing');
+        throw new Error(data.error || 'Unable to parse analysis results');
       }
     } catch (err: any) {
-      console.warn('Resume analysis error, using fallback preset parser:', err);
-      // Fallback to rich pre-parsed profile so capstone presentation never fails
-      const fallbackPreset = PRESET_RESUMES[0];
-      const fallbackAnalysis = {
-        ...fallbackPreset.analysis,
-        candidateName: user.name || fallbackPreset.analysis.candidateName,
-      };
-      setAnalysisStep('Analysis finalized via local intelligence engine.');
-      await new Promise((r) => setTimeout(r, 500));
-      onAnalysisComplete(fallbackAnalysis);
-    } finally {
+      console.error('Resume analysis error:', err);
+      setErrorMsg(err.message || 'Failed to analyze resume. Please try uploading again or paste your resume text directly.');
       setIsAnalyzing(false);
+    } finally {
+      if (!errorMsg) {
+        setIsAnalyzing(false);
+      }
     }
   };
 
@@ -169,12 +179,30 @@ export const ResumeUploadView: React.FC<ResumeUploadViewProps> = ({
                 {analysisStep || 'Processing document...'}
               </p>
               <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden mt-3">
-                <div className="bg-blue-600 h-full w-3/4 animate-[pulse_1.5s_ease-in-out_infinite] rounded-full" />
+                <div 
+                  className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full" 
+                  style={{ width: `${analysisProgress}%` }}
+                />
               </div>
             </div>
           </div>
         ) : (
           <div className="space-y-6">
+            
+            {errorMsg && (
+              <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <p className="font-bold text-rose-900">Analysis Notice</p>
+                  <p>{errorMsg}</p>
+                </div>
+                <button
+                  onClick={() => setErrorMsg(null)}
+                  className="px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg font-semibold shrink-0"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
             
             {/* Drag & Drop Target Area */}
             <div
@@ -232,7 +260,7 @@ export const ResumeUploadView: React.FC<ResumeUploadViewProps> = ({
                   className="text-xs text-blue-600 hover:text-blue-700 hover:underline flex items-center space-x-1 font-semibold"
                 >
                   <FileCode className="w-3.5 h-3.5" />
-                  <span>Or Paste Resume Text</span>
+                  <span>Or Enter Resume Text Manually</span>
                 </button>
               </div>
 
@@ -276,7 +304,7 @@ export const ResumeUploadView: React.FC<ResumeUploadViewProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
           <div className="bg-white border border-slate-200 rounded-3xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-900">Paste Resume Content</h2>
+              <h2 className="text-lg font-bold text-slate-900">Enter Resume Content Manually</h2>
               <button
                 onClick={() => setShowPasteModal(false)}
                 className="text-slate-400 hover:text-slate-600 text-sm font-bold"
@@ -285,12 +313,12 @@ export const ResumeUploadView: React.FC<ResumeUploadViewProps> = ({
               </button>
             </div>
             <p className="text-xs text-slate-500">
-              Paste your raw resume text below (education, skills, projects, and work experience).
+              Type your raw resume text below (education, skills, projects, and work experience). Note: Copy-paste is disabled for assessment integrity.
             </p>
             <textarea
               value={manualText}
               onChange={(e) => setManualText(e.target.value)}
-              placeholder="Paste complete resume text here..."
+              placeholder="Type your resume details (Education, Experience, Skills, Projects)..."
               rows={9}
               className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
             />
@@ -306,7 +334,7 @@ export const ResumeUploadView: React.FC<ResumeUploadViewProps> = ({
                 disabled={!manualText.trim()}
                 className="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 shadow-sm shadow-blue-500/20"
               >
-                Analyze Pasted Resume
+                Analyze Resume Details
               </button>
             </div>
           </div>

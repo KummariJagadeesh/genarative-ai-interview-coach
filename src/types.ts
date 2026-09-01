@@ -23,21 +23,38 @@ export interface JobRoleRecommendation {
   growthOutlook?: string;
 }
 
+export interface ResumeSuggestion {
+  id: string;
+  category: 'ATS & Keyword Optimization' | 'Impact & Quantifiable Metrics' | 'Skill Gap & Technology' | 'Project Presentation' | 'Career Strategy' | string;
+  title: string;
+  description: string;
+  priority: 'High Priority' | 'Recommended' | 'Pro Tip' | string;
+  actionItem: string;
+  exampleBeforeAfter?: {
+    before: string;
+    after: string;
+  };
+}
+
 export interface ResumeAnalysis {
   candidateName: string;
   email: string;
   phone: string;
+  location?: string;
+  linkedinOrGithub?: string;
   summary: string;
   education: {
     degree: string;
     institution: string;
     year: string;
     gpaOrGrade?: string;
+    fieldOfStudy?: string;
   }[];
   workExperience: {
     title: string;
     company: string;
     duration: string;
+    location?: string;
     highlights: string[];
   }[];
   technicalSkills: string[];
@@ -49,17 +66,26 @@ export interface ResumeAnalysis {
     description: string;
     technologies: string[];
     outcomes?: string;
+    liveUrlOrRepo?: string;
   }[];
   strengths: string[];
   areasForImprovement: string[];
+  resumeSuggestions?: ResumeSuggestion[];
   recommendedJobRoles: JobRoleRecommendation[];
   rawText?: string;
 }
 
+export interface TestCase {
+  input: string;
+  expectedOutput: string;
+  description?: string;
+  isHidden?: boolean;
+}
+
 export interface PracticeQuestion {
   id: string;
-  type: 'mcq' | 'scenario' | 'short_answer';
-  category: string; // e.g. Technical Core, System Design, Problem Solving, Behavioral
+  type: 'mcq' | 'code' | 'scenario' | 'short_answer';
+  category: string; // e.g. Technical Core, Data Structures & Algorithms, Coding Implementation, System Design
   question: string;
   codeSnippet?: string;
   options?: string[];
@@ -67,12 +93,23 @@ export interface PracticeQuestion {
   expectedKeywords?: string[];
   difficulty: 'Easy' | 'Medium' | 'Hard';
   points: number;
+  explanation?: string;
+  // Coding challenge specific properties
+  starterCode?: string;
+  language?: string; // 'javascript' | 'python' | 'typescript'
+  testCases?: TestCase[];
+  solutionCode?: string;
+  stage?: 1 | 2; // 1 for Stage 1 (MCQ 1-4), 2 for Stage 2 (Questions 5-10)
 }
 
 export interface PracticeUserAnswer {
   questionId: string;
   selectedOptionIndex?: number;
   textAnswer?: string;
+  codeAnswer?: string;
+  testCasesPassed?: number;
+  totalTestCases?: number;
+  outputLog?: string;
   timeSpentSeconds: number;
 }
 
@@ -80,13 +117,16 @@ export interface PracticeQuestionResult {
   questionId: string;
   question: string;
   category: string;
-  type: 'mcq' | 'scenario' | 'short_answer';
+  type: 'mcq' | 'code' | 'scenario' | 'short_answer';
   userAnswer: string;
   isCorrect: boolean;
   score: number; // 0 to points
   maxPoints: number;
   modelExplanation: string;
   keyTakeaway: string;
+  testCasesPassed?: number;
+  totalTestCases?: number;
+  codeExecutionDetails?: string;
 }
 
 export interface PracticeTestReport {
@@ -99,6 +139,13 @@ export interface PracticeTestReport {
   accuracyRate: number;
   timeSpentSeconds: number;
   difficultyLevel: string;
+  stage1Score?: {
+    correctCount: number;
+    totalCount: number;
+    percentage: number;
+    passed: boolean;
+  };
+  stage2Unlocked?: boolean;
   categoryBreakdown: {
     category: string;
     score: number;

@@ -69,6 +69,22 @@ export const PracticeReportView: React.FC<PracticeReportViewProps> = ({
             <div className="text-xs text-slate-500 pt-1 font-medium">
               Candidate: <strong className="text-slate-900">{report.candidateName}</strong> • Evaluated on: {report.completedAt}
             </div>
+
+            {/* Stage 1 & Stage 2 Multi-stage Badges */}
+            <div className="flex flex-wrap items-center gap-2 pt-2">
+              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-xs font-semibold">
+                <span>Stage 1 MCQs:</span>
+                <strong>{report.stage1Score ? `${report.stage1Score.correctCount}/${report.stage1Score.totalCount} (${report.stage1Score.percentage}%)` : 'Passed'}</strong>
+              </span>
+              <span className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-xl text-xs font-semibold border ${
+                report.stage2Unlocked 
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                  : 'bg-slate-100 text-slate-700 border-slate-200'
+              }`}>
+                <span>Stage 2 Advanced:</span>
+                <strong>{report.stage2Unlocked ? 'Unlocked & Evaluated' : 'Stage 1 Threshold Not Met'}</strong>
+              </span>
+            </div>
           </div>
 
           {/* Big Score Dial Box */}
