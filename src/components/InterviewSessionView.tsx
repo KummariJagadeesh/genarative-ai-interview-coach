@@ -435,10 +435,12 @@ export const InterviewSessionView: React.FC<InterviewSessionViewProps> = ({
     const fillerData = analyzeFillerWords(finalTranscript);
 
     const currentQ = questions[currentQIndex];
+    if (!currentQ) return;
+
     const answerRecord: SpokenAnswerRecord = {
-      questionId: currentQ.id,
-      questionText: currentQ.questionText,
-      category: currentQ.category,
+      questionId: currentQ.id || `q-${currentQIndex + 1}`,
+      questionText: currentQ.questionText || 'Interview Question',
+      category: currentQ.category || 'General',
       transcript: finalTranscript || 'Spoken response completed.',
       timeSpentSeconds: timeSpent,
       fillerWordCounts: fillerData.counts,

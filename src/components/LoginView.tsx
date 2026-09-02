@@ -54,14 +54,12 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
       setRecentAccounts(getRecentAccounts());
       onLogin(userProfile);
     } catch (err: any) {
-      console.warn("Google Sign In Notice:", err);
-      // If popup was blocked or closed by user, show informative message
-      if (err.code === 'auth/popup-closed-by-user') {
-        setGoogleError("Google Sign-In popup was closed. Please try again.");
-      } else if (err.code === 'auth/cancelled-popup-request') {
-        setGoogleError("Sign-in request was cancelled.");
+      // If popup was dismissed or cancelled by user, clear error quietly
+      if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
+        setGoogleError(null);
       } else {
-        setGoogleError(err.message || "Google Sign-In encountered an error. You can also sign in with your Gmail address below.");
+        console.warn("Google Sign In Notice:", err);
+        setGoogleError(err.message || "Google Sign-In encountered an issue. You can also proceed with your Gmail address below.");
       }
     } finally {
       setIsGoogleLoading(false);

@@ -65,6 +65,51 @@ function sanitizeAndParseJson<T = any>(raw: string | undefined | null, fallback:
   }
 }
 
+// Resilient Multi-Model Fallback Engine for Gemini API
+async function generateContentWithFallback(
+  ai: GoogleGenAI,
+  request: {
+    contents: any;
+    config?: any;
+    preferredModel?: string;
+  }
+) {
+  const modelsToTry = [
+    request.preferredModel || "gemini-2.5-flash",
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
+    "gemini-2.0-flash",
+  ];
+  const uniqueModels = Array.from(new Set(modelsToTry));
+
+  let lastError: any = null;
+  for (const model of uniqueModels) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: request.contents,
+        config: request.config,
+      });
+      return response;
+    } catch (err: any) {
+      lastError = err;
+      const isQuotaOrRateLimit =
+        err?.status === "RESOURCE_EXHAUSTED" ||
+        err?.code === 429 ||
+        err?.status === 429 ||
+        String(err?.message || "").includes("quota") ||
+        String(err?.message || "").includes("Quota exceeded");
+
+      if (isQuotaOrRateLimit) {
+        console.warn(`[Gemini Model ${model} Quota Limit (429), switching to next model...]`);
+        continue;
+      }
+      console.warn(`[Gemini Model ${model} error, trying alternative model]:`, err?.message || err);
+    }
+  }
+  throw lastError;
+}
+
 // -------------------------------------------------------------
 // API 1: Health Check
 // -------------------------------------------------------------
@@ -759,8 +804,8 @@ Return ONLY a valid JSON object matching this schema:
           });
         }
 
-        const response = await ai.models.generateContent({
-          model: "gemini-2.5-flash",
+        const response = await generateContentWithFallback(ai, {
+          preferredModel: "gemini-2.5-flash",
           contents: { parts },
           config: {
             responseMimeType: "application/json",
@@ -784,8 +829,8 @@ Return ONLY a valid JSON object matching this schema:
         // Retry with pure text if multimodal had issues
         if (resumeText && resumeText.trim().length > 10) {
           try {
-            const retryResponse = await ai.models.generateContent({
-              model: "gemini-2.5-flash",
+            const retryResponse = await generateContentWithFallback(ai, {
+              preferredModel: "gemini-2.5-flash",
               contents: {
                 parts: [{
                   text: `${systemPrompt}\nResume text content:\n${resumeText}\nUser Context: ${JSON.stringify(candidateInfo || {})}`
@@ -896,8 +941,8 @@ Return ONLY a valid JSON object adhering strictly to this schema:
 
     if (ai) {
       try {
-        const response = await ai.models.generateContent({
-          model: "gemini-3.7-flash",
+        const response = await generateContentWithFallback(ai, {
+          preferredModel: "gemini-2.5-flash",
           contents: prompt,
           config: {
             responseMimeType: "application/json",
@@ -1213,8 +1258,8 @@ Return ONLY a valid JSON object adhering to this schema:
 
     if (ai) {
       try {
-        const response = await ai.models.generateContent({
-          model: "gemini-3.7-flash",
+        const response = await generateContentWithFallback(ai, {
+          preferredModel: "gemini-2.5-flash",
           contents: prompt,
           config: {
             responseMimeType: "application/json",
@@ -1391,8 +1436,8 @@ Return ONLY a valid JSON object matching this schema:
 
     if (ai) {
       try {
-        const response = await ai.models.generateContent({
-          model: "gemini-3.7-flash",
+        const response = await generateContentWithFallback(ai, {
+          preferredModel: "gemini-2.5-flash",
           contents: prompt,
           config: {
             responseMimeType: "application/json",
@@ -1651,8 +1696,8 @@ Return ONLY a valid JSON object matching this schema:
           };
         }
 
-        const response = await ai.models.generateContent({
-          model: "gemini-3.7-flash",
+        const response = await generateContentWithFallback(ai, {
+          preferredModel: "gemini-2.5-flash",
           contents: contents,
           config: {
             responseMimeType: "application/json",

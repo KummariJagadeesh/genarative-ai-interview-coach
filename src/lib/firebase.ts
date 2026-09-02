@@ -70,7 +70,11 @@ export async function signInWithGoogle(): Promise<UserProfile> {
 
     return userProfile;
   } catch (error: any) {
-    console.error("Google Sign-In Error:", error);
+    if (error?.code === 'auth/popup-closed-by-user' || error?.code === 'auth/cancelled-popup-request') {
+      console.warn("Google Sign-In popup was dismissed by user.");
+    } else {
+      console.error("Google Sign-In Error:", error);
+    }
     throw error;
   }
 }

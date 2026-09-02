@@ -265,32 +265,35 @@ export const ResumeUploadView: React.FC<ResumeUploadViewProps> = ({
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {PRESET_RESUMES.map((preset) => (
-                  <button
-                    key={preset.id}
-                    id={`btn-preset-${preset.id}`}
-                    onClick={() => handlePresetSelect(preset)}
-                    className="text-left p-4 rounded-2xl bg-white border border-slate-200 hover:border-blue-500 hover:shadow-sm transition-all group flex items-start justify-between"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
-                          {preset.targetRole}
-                        </span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100 font-semibold">
-                          Sample
-                        </span>
+                {PRESET_RESUMES.map((preset, pIdx) => {
+                  const presetId = preset?.id || `preset-${pIdx}`;
+                  return (
+                    <button
+                      key={presetId}
+                      id={`btn-preset-${presetId}`}
+                      onClick={() => handlePresetSelect(preset)}
+                      className="text-left p-4 rounded-2xl bg-white border border-slate-200 hover:border-blue-500 hover:shadow-sm transition-all group flex items-start justify-between"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                            {preset.targetRole}
+                          </span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100 font-semibold">
+                            Sample
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 line-clamp-1">
+                          {preset.subtitle}
+                        </p>
+                        <p className="text-[11px] text-slate-400 font-medium">
+                          Candidate: {preset.name} • {preset.experienceLevel}
+                        </p>
                       </div>
-                      <p className="text-xs text-slate-500 line-clamp-1">
-                        {preset.subtitle}
-                      </p>
-                      <p className="text-[11px] text-slate-400 font-medium">
-                        Candidate: {preset.name} • {preset.experienceLevel}
-                      </p>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all shrink-0 mt-1" />
-                  </button>
-                ))}
+                      <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all shrink-0 mt-1" />
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

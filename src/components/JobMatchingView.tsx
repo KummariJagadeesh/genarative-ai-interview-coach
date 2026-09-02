@@ -289,12 +289,14 @@ export const JobMatchingView: React.FC<JobMatchingViewProps> = ({
             </div>
 
             <div className="space-y-3">
-              {(analysis.recommendedJobRoles || []).map((role) => {
-                const isSelected = currentRole?.id === role.id;
+              {(analysis.recommendedJobRoles || []).map((role, rIdx) => {
+                if (!role) return null;
+                const roleId = role.id || role.roleTitle || `role-${rIdx}`;
+                const isSelected = (currentRole?.id || currentRole?.roleTitle) === roleId;
                 return (
                   <div
-                    key={role.id}
-                    id={`role-card-${role.id}`}
+                    key={roleId}
+                    id={`role-card-${roleId}`}
                     onClick={() => onSelectRole(role)}
                     className={`p-5 rounded-2xl cursor-pointer transition-all border ${
                       isSelected
@@ -547,11 +549,13 @@ export const JobMatchingView: React.FC<JobMatchingViewProps> = ({
 
             {/* Suggestions Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {filteredSuggestions.map((sug) => {
-                const isApplied = !!appliedSuggestions[sug.id];
+              {filteredSuggestions.map((sug, sIdx) => {
+                if (!sug) return null;
+                const sugId = sug.id || `sug-${sIdx}`;
+                const isApplied = !!appliedSuggestions[sugId];
                 return (
                   <div
-                    key={sug.id}
+                    key={sugId}
                     className={`p-5 rounded-2xl border transition-all space-y-4 ${
                       isApplied
                         ? 'bg-emerald-50/40 border-emerald-200'
@@ -570,10 +574,10 @@ export const JobMatchingView: React.FC<JobMatchingViewProps> = ({
                                 : 'bg-purple-50 text-purple-700 border-purple-200'
                             }`}
                           >
-                            {sug.priority}
+                            {sug.priority || 'Recommended'}
                           </span>
                           <span className="text-[11px] font-semibold text-slate-500">
-                            {sug.category}
+                            {sug.category || 'Resume'}
                           </span>
                         </div>
                         <h3 className="text-sm font-bold text-slate-900">
@@ -582,7 +586,7 @@ export const JobMatchingView: React.FC<JobMatchingViewProps> = ({
                       </div>
 
                       <button
-                        onClick={() => toggleSuggestionApplied(sug.id)}
+                        onClick={() => toggleSuggestionApplied(sugId)}
                         className={`p-1.5 rounded-xl border text-xs font-semibold transition-all shrink-0 flex items-center space-x-1 ${
                           isApplied
                             ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'

@@ -36,17 +36,17 @@ export const CodingChallengeEditor: React.FC<CodingChallengeEditorProps> = ({
 
   // Initialize code with starter code if empty
   useEffect(() => {
-    if (!userCode && question.starterCode) {
+    if (!userCode && question?.starterCode) {
       onChangeCode(question.starterCode);
     }
-  }, [question.id, question.starterCode]);
+  }, [question?.id, question?.starterCode]);
 
   const handleRunCode = () => {
     setIsRunning(true);
     try {
       const result = executeCodeAgainstTestCases(
-        userCode || question.starterCode || '',
-        question.testCases || []
+        userCode || question?.starterCode || '',
+        question?.testCases || []
       );
       setLastResult(result);
       onExecutionComplete(result);
@@ -57,8 +57,10 @@ export const CodingChallengeEditor: React.FC<CodingChallengeEditorProps> = ({
     }
   };
 
+  const qId = question?.id || 'code-editor-main';
+
   const handleResetCode = () => {
-    if (question.starterCode) {
+    if (question?.starterCode) {
       onChangeCode(question.starterCode);
       setLastResult(null);
     }
@@ -72,7 +74,7 @@ export const CodingChallengeEditor: React.FC<CodingChallengeEditorProps> = ({
     }
   };
 
-  const testCases = question.testCases || [];
+  const testCases = question?.testCases || [];
   const currentTestCase = testCases[activeTestCaseIdx];
 
   return (
@@ -83,7 +85,7 @@ export const CodingChallengeEditor: React.FC<CodingChallengeEditorProps> = ({
         <div className="flex items-center space-x-2">
           <Code2 className="w-4 h-4 text-emerald-400" />
           <span className="text-xs font-mono font-bold text-slate-100">
-            solution.js ({question.language || 'javascript'})
+            solution.js ({question?.language || 'javascript'})
           </span>
           <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/60 text-[10px] font-mono">
             Sandboxed Runner
@@ -102,7 +104,7 @@ export const CodingChallengeEditor: React.FC<CodingChallengeEditorProps> = ({
           </button>
           <button
             type="button"
-            id={`btn-run-code-${question.id}`}
+            id={`btn-run-code-${qId}`}
             onClick={handleRunCode}
             disabled={isRunning}
             className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center space-x-1.5 shadow-sm shadow-emerald-950 transition-all active:scale-95 disabled:opacity-50"
@@ -125,7 +127,7 @@ export const CodingChallengeEditor: React.FC<CodingChallengeEditorProps> = ({
       {/* Code Textarea with strictly enforced Anti-Cheat (Copy, Paste, Cut prevention) */}
       <div className="relative">
         <textarea
-          id={`code-editor-${question.id}`}
+          id={`code-editor-${qId}`}
           value={userCode}
           onChange={(e) => onChangeCode(e.target.value)}
           onCopy={handleCopyPasteBlock}

@@ -86,7 +86,11 @@ export const PracticeTestView: React.FC<PracticeTestViewProps> = ({
         if (!response.ok) throw new Error('Failed to generate practice test');
         const data = await response.json();
         if (isMounted && data.questions && Array.isArray(data.questions) && data.questions.length >= 8) {
-          setQuestions(data.questions);
+          const sanitized = data.questions.map((q: any, idx: number) => ({
+            ...q,
+            id: q?.id || `q-${idx + 1}`,
+          }));
+          setQuestions(sanitized);
         } else if (isMounted) {
           setQuestions(DEFAULT_PRACTICE_QUESTIONS);
         }
@@ -102,7 +106,7 @@ export const PracticeTestView: React.FC<PracticeTestViewProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [role.roleTitle]);
+  }, [role?.roleTitle]);
 
   // Global Anti-Cheat Clipboard Prevention
   useEffect(() => {
@@ -171,8 +175,9 @@ export const PracticeTestView: React.FC<PracticeTestViewProps> = ({
   const handleCheckStage1Gate = () => {
     const stage1Questions = questions.slice(0, 4);
     let correct = 0;
-    stage1Questions.forEach((q) => {
-      if (mcqAnswers[q.id] !== undefined && mcqAnswers[q.id] === q.correctOptionIndex) {
+    stage1Questions.forEach((q, idx) => {
+      const qId = q?.id || `q-${idx + 1}`;
+      if (mcqAnswers[qId] !== undefined && mcqAnswers[qId] === q.correctOptionIndex) {
         correct++;
       }
     });
@@ -203,22 +208,23 @@ export const PracticeTestView: React.FC<PracticeTestViewProps> = ({
 
     try {
       // Compute formatted user answers
-      const formattedAnswers: PracticeUserAnswer[] = questions.map((q) => {
+      const formattedAnswers: PracticeUserAnswer[] = questions.map((q, idx) => {
+        const qId = q?.id || `q-${idx + 1}`;
         if (q.type === 'code') {
-          const exec = codeExecResults[q.id];
+          const exec = codeExecResults[qId];
           const passedTests = exec?.passedTests ?? (exec?.passed ? (q.testCases?.length || 1) : 0);
           const totalTests = exec?.totalTests ?? (q.testCases?.length || 1);
           return {
-            questionId: q.id,
-            codeAnswer: codeAnswers[q.id] || q.starterCode,
+            questionId: qId,
+            codeAnswer: codeAnswers[qId] || q.starterCode,
             testCasesPassed: passedTests,
             totalTestCases: totalTests,
             timeSpentSeconds: 900 - timeRemaining,
           };
         } else {
           return {
-            questionId: q.id,
-            selectedOptionIndex: mcqAnswers[q.id],
+            questionId: qId,
+            selectedOptionIndex: mcqAnswers[qId],
             timeSpentSeconds: 900 - timeRemaining,
           };
         }
@@ -227,8 +233,9 @@ export const PracticeTestView: React.FC<PracticeTestViewProps> = ({
       // Calculate stage 1 results
       const stage1Questions = questions.slice(0, 4);
       let s1Correct = 0;
-      stage1Questions.forEach((q) => {
-        if (mcqAnswers[q.id] === q.correctOptionIndex) {
+      stage1Questions.forEach((q, idx) => {
+        const qId = q?.id || `q-${idx + 1}`;
+        if (mcqAnswers[qId] === q.correctOptionIndex) {
           s1Correct++;
         }
       });
@@ -267,20 +274,21 @@ export const PracticeTestView: React.FC<PracticeTestViewProps> = ({
       let max = 0;
       const categoryMap: Record<string, { score: number; total: number }> = {};
 
-      const results = questions.map((q) => {
+      const results = questions.map((q, idx) => {
+        const qId = q?.id || `q-${idx + 1}`;
         let isCorrect = false;
         let score = 0;
         let userAnswerStr = 'Not attempted';
 
         if (q.type === 'code') {
-          const exec = codeExecResults[q.id];
+          const exec = codeExecResults[qId];
           const passedTests = exec?.passedTests || 0;
           const totalTests = exec?.totalTests || (q.testCases?.length || 1);
           isCorrect = totalTests > 0 && passedTests === totalTests;
           score = isCorrect ? q.points : Math.round((passedTests / Math.max(totalTests, 1)) * q.points);
           userAnswerStr = `Code submitted (${passedTests}/${totalTests} test cases passed)`;
         } else {
-          const chosenOpt = mcqAnswers[q.id];
+          const chosenOpt = mcqAnswers[qId];
           isCorrect = chosenOpt !== undefined && chosenOpt === q.correctOptionIndex;
           score = isCorrect ? q.points : 0;
           userAnswerStr = chosenOpt !== undefined ? q.options?.[chosenOpt] || 'No answer' : 'No answer';
@@ -296,7 +304,7 @@ export const PracticeTestView: React.FC<PracticeTestViewProps> = ({
         categoryMap[q.category].total += q.points;
 
         return {
-          questionId: q.id,
+          questionId: qId,
           question: q.question,
           category: q.category,
           type: q.type,
@@ -360,21 +368,22 @@ export const PracticeTestView: React.FC<PracticeTestViewProps> = ({
 
   const answeredStage1Count = questions
     .slice(0, 4)
-    .filter((q) => mcqAnswers[q.id] !== undefined).length;
+    .filter((q, idx) => mcqAnswers[q?.id || `q-${idx+1}`] !== undefined).length;
 
   const totalAnsweredCount =
     Object.keys(mcqAnswers).length +
     Object.keys(codeExecResults).filter((k) => codeExecResults[k]?.passedTests > 0).length;
 
-  const currentQ = questions[currentIndex];
+  const currentQ = questions[currentIndex] || DEFAULT_PRACTICE_QUESTIONS[0];
+  const currentQId = currentQ?.id || `q-${currentIndex + 1}`;
   const isCurrentStage2 = currentIndex >= 4;
 
-  if (isLoading) {
+  if (isLoading || !currentQ) {
     return (
       <div className="max-w-4xl mx-auto py-20 px-4 text-center space-y-4">
         <div className="w-14 h-14 mx-auto rounded-full border-4 border-emerald-500/20 border-t-emerald-500 animate-spin" />
         <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-          Generating 10-Question Technical Assessment for {role.roleTitle}...
+          Loading Technical Assessment for {role?.roleTitle || 'Candidate'}...
         </h2>
         <p className="text-xs text-slate-500">
           Synthesizing Stage 1 (4 MCQs) and Stage 2 (6 Advanced Questions with 3 Coding Challenges)...
@@ -494,11 +503,12 @@ export const PracticeTestView: React.FC<PracticeTestViewProps> = ({
           <div className="flex items-center space-x-1.5 p-1 bg-blue-50/50 rounded-xl border border-blue-100">
             <span className="text-[10px] font-bold text-blue-600 uppercase px-1">Stage 1</span>
             {questions.slice(0, 4).map((q, idx) => {
-              const isAnswered = mcqAnswers[q.id] !== undefined;
+              const qId = q?.id || `q-${idx + 1}`;
+              const isAnswered = mcqAnswers[qId] !== undefined;
               const isCurrent = idx === currentIndex;
               return (
                 <button
-                  key={q.id}
+                  key={qId}
                   id={`palette-q-${idx + 1}`}
                   onClick={() => setCurrentIndex(idx)}
                   className={`w-8 h-8 rounded-lg text-xs font-bold transition-all flex items-center justify-center ${
@@ -526,14 +536,15 @@ export const PracticeTestView: React.FC<PracticeTestViewProps> = ({
             <span className="text-[10px] font-bold text-emerald-700 uppercase px-1">Stage 2</span>
             {questions.slice(4, 10).map((q, rawIdx) => {
               const actualIdx = rawIdx + 4;
+              const qId = q?.id || `q-${actualIdx + 1}`;
               const isCurrent = actualIdx === currentIndex;
-              const isCode = q.type === 'code';
-              const isCodePassed = codeExecResults[q.id]?.passed;
-              const isAnswered = isCode ? (codeExecResults[q.id]?.passedTests ?? 0) > 0 : mcqAnswers[q.id] !== undefined;
+              const isCode = q?.type === 'code';
+              const isCodePassed = codeExecResults[qId]?.passed;
+              const isAnswered = isCode ? (codeExecResults[qId]?.passedTests ?? 0) > 0 : mcqAnswers[qId] !== undefined;
 
               return (
                 <button
-                  key={q.id}
+                  key={qId}
                   id={`palette-q-${actualIdx + 1}`}
                   disabled={!stage2Unlocked}
                   onClick={() => {
@@ -646,23 +657,23 @@ export const PracticeTestView: React.FC<PracticeTestViewProps> = ({
             <div className="pt-2">
               <CodingChallengeEditor
                 question={currentQ}
-                userCode={codeAnswers[currentQ.id] || currentQ.starterCode || ''}
-                onChangeCode={(code) => handleUpdateCode(currentQ.id, code)}
-                onExecutionComplete={(res) => handleCodeExecutionComplete(currentQ.id, res)}
+                userCode={codeAnswers[currentQId] || currentQ.starterCode || ''}
+                onChangeCode={(code) => handleUpdateCode(currentQId, code)}
+                onExecutionComplete={(res) => handleCodeExecutionComplete(currentQId, res)}
                 onPreventCopyPasteAlert={triggerCopyPasteAlert}
               />
             </div>
           ) : (
             <div className="space-y-3 pt-2">
               {currentQ.options?.map((option, optIdx) => {
-                const isSelected = mcqAnswers[currentQ.id] === optIdx;
+                const isSelected = mcqAnswers[currentQId] === optIdx;
                 const letter = String.fromCharCode(65 + optIdx); // A, B, C, D
 
                 return (
                   <button
                     key={optIdx}
                     id={`q-${currentIndex + 1}-opt-${optIdx}`}
-                    onClick={() => handleSelectOption(currentQ.id, optIdx)}
+                    onClick={() => handleSelectOption(currentQId, optIdx)}
                     className={`w-full text-left p-4 rounded-2xl transition-all border flex items-start space-x-3.5 ${
                       isSelected
                         ? 'bg-blue-50/90 border-2 border-blue-600 text-slate-900 shadow-xs'

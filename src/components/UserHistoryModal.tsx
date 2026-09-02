@@ -42,14 +42,18 @@ export const UserHistoryModal: React.FC<UserHistoryModalProps> = ({
   const [loading, setLoading] = useState(true);
 
   const fetchHistory = async () => {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const [interviews, practices] = await Promise.all([
         getUserInterviewReportsFromFirestore(user.id),
         getUserPracticeReportsFromFirestore(user.id),
       ]);
-      setInterviewReports(interviews);
-      setPracticeReports(practices);
+      setInterviewReports(interviews || []);
+      setPracticeReports(practices || []);
     } catch (err) {
       console.warn("Failed to fetch user history:", err);
     } finally {
@@ -150,36 +154,38 @@ export const UserHistoryModal: React.FC<UserHistoryModalProps> = ({
               </div>
             ) : (
               <div className="space-y-3">
-                {interviewReports.map((report) => (
+                {interviewReports.map((report, rIdx) => (
                   <div
-                    key={report.id}
+                    key={report?.id || `int-report-${rIdx}`}
                     onClick={() => {
-                      onSelectInterviewReport(report);
-                      onClose();
+                      if (report) {
+                        onSelectInterviewReport(report);
+                        onClose();
+                      }
                     }}
                     className="p-4 rounded-2xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/30 transition-all cursor-pointer flex items-center justify-between group shadow-xs"
                   >
                     <div className="space-y-1.5">
                       <div className="flex items-center space-x-2">
                         <span className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors">
-                          {report.targetRole || 'Technical Mock Interview'}
+                          {report?.targetRole || 'Technical Mock Interview'}
                         </span>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          report.hiringDecision === 'Strong Hire' || report.hiringDecision === 'Hire'
+                          report?.hiringDecision === 'Strong Hire' || report?.hiringDecision === 'Hire'
                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                             : 'bg-amber-50 text-amber-700 border border-amber-200'
                         }`}>
-                          {report.hiringDecision}
+                          {report?.hiringDecision || 'Reviewed'}
                         </span>
                       </div>
                       <div className="flex items-center space-x-4 text-xs text-slate-500">
                         <span className="flex items-center space-x-1">
                           <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{report.completedAt}</span>
+                          <span>{report?.completedAt || 'Recently'}</span>
                         </span>
                         <span className="flex items-center space-x-1 font-semibold text-slate-700">
                           <BarChart3 className="w-3.5 h-3.5 text-blue-600" />
-                          <span>Score: {report.overallScore || 0}% ({report.totalMarksEarned || 0}/100 marks)</span>
+                          <span>Score: {report?.overallScore || 0}% ({report?.totalMarksEarned || 0}/100 marks)</span>
                         </span>
                       </div>
                     </div>
@@ -202,22 +208,24 @@ export const UserHistoryModal: React.FC<UserHistoryModalProps> = ({
             </div>
           ) : (
             <div className="space-y-3">
-              {practiceReports.map((report) => (
+              {practiceReports.map((report, rIdx) => (
                 <div
-                  key={report.id}
+                  key={report?.id || `prac-report-${rIdx}`}
                   onClick={() => {
-                    onSelectPracticeReport(report);
-                    onClose();
+                    if (report) {
+                      onSelectPracticeReport(report);
+                      onClose();
+                    }
                   }}
                   className="p-4 rounded-2xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/30 transition-all cursor-pointer flex items-center justify-between group shadow-xs"
                 >
                   <div className="space-y-1.5">
                     <div className="flex items-center space-x-2">
                       <span className="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition-colors">
-                        {report.targetRole} Practice Test
+                        {report?.targetRole || 'Technical'} Practice Test
                       </span>
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                        {report.accuracyRate}% Accuracy
+                        {report?.accuracyRate || 0}% Accuracy
                       </span>
                     </div>
                     <div className="flex items-center space-x-4 text-xs text-slate-500">
